@@ -10,3 +10,5 @@ target_groups:
     terraform_command: terragrunt
     env:
       TG_TF_PATH: tofu
+update_local_path_module_caller:
+  enabled: true
