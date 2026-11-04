@@ -12,6 +12,6 @@ dependency "base" {
 }
 
 inputs = {
-  name = "empresa-a-app"
+  name = "empresa-a-app-v2"
   dep  = dependency.base.outputs.id
 }
