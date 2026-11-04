@@ -1,0 +1,27 @@
+name: list
+on:
+  workflow_call:
+    outputs:
+      targets:
+        description: JSON array of changed root module targets
+        value: ${{ jobs.list.outputs.targets }}
+permissions: {}
+jobs:
+  list:
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      targets: ${{ steps.list-targets.outputs.targets }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: List Targets
+        uses: daespinosag/tfaction@e892f1d582adb0c401caee0e768c9bd7b063e86e # v2.3.4
+        id: list-targets
+        with:
+          action: list-targets

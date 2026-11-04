@@ -1,0 +1,12 @@
+plan_workflow_name: plan.yaml
+terraform_command: terragrunt
+available_providers: []
+target_groups:
+  - working_directory: live/empresa-a/**
+    terraform_command: terragrunt
+    env:
+      TG_TF_PATH: tofu
+  - working_directory: live/empresa-b/**
+    terraform_command: terragrunt
+    env:
+      TG_TF_PATH: tofu

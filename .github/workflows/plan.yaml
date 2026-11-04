@@ -1,0 +1,51 @@
+name: plan
+on: pull_request
+permissions: {}
+jobs:
+  list:
+    uses: ./.github/workflows/workflow_call_list.yaml
+    permissions:
+      contents: read
+
+  plan:
+    name: "plan (${{ matrix.target.target }})"
+    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    needs: [list]
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+    env:
+      TFACTION_TARGET: ${{ matrix.target.target }}
+      TFACTION_WORKING_DIR: ${{ matrix.target.working_directory }}
+      TFACTION_JOB_TYPE: ${{ matrix.target.job_type }}
+    if: "join(fromJSON(needs.list.outputs.targets), '') != ''"
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.list.outputs.targets) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up
+        uses: daespinosag/tfaction@e892f1d582adb0c401caee0e768c9bd7b063e86e # v2.3.4
+        with:
+          action: setup
+          github_token: ${{ github.token }}
+
+      - name: Init
+        uses: daespinosag/tfaction@e892f1d582adb0c401caee0e768c9bd7b063e86e # v2.3.4
+        with:
+          action: terraform-init
+          github_token: ${{ github.token }}
+
+      - name: Plan
+        uses: daespinosag/tfaction@e892f1d582adb0c401caee0e768c9bd7b063e86e # v2.3.4
+        if: matrix.target.skip_terraform != true
+        with:
+          action: plan
+          github_token: ${{ github.token }}
