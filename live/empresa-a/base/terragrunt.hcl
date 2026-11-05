@@ -6,3 +6,4 @@ inputs = {
   name = "empresa-a-base"
 }
 # PC: empresa-a/base (C)
+# R4: dos empresas (con capa)
