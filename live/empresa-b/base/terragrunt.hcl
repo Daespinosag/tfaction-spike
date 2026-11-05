@@ -1,3 +1,4 @@
+# pb (arriba)
 terraform {
   source = "${get_repo_root()}/catalog/modules/demo"
 }
@@ -5,4 +6,3 @@ terraform {
 inputs = {
   name = "empresa-b-base"
 }
-# pb
