@@ -26,3 +26,33 @@ jobs:
         id: list-targets
         with:
           action: list-targets
+
+      # Capa propia: units que usan un modulo local compartido (catalog/modules/*)
+      # que list-targets de tfaction no ve. Se fusionan con sus targets.
+      - name: Affected units (capa propia)
+        id: affected
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          TARGETS: ${{ steps.list-targets.outputs.targets }}
+          TG_SHA256: d75a80bb264758ba00dabcb17f4b507fcdab4ca90d9e41f96750df036bf69b04
+        run: |
+          set -euo pipefail
+          tmp="$RUNNER_TEMP/affected"
+          mkdir -p "$tmp"
+          curl -fsSL -o "$tmp/terragrunt" \
+            "https://github.com/gruntwork-io/terragrunt/releases/download/v1.1.6/terragrunt_linux_amd64"
+          echo "$TG_SHA256  $tmp/terragrunt" | sha256sum -c -
+          chmod +x "$tmp/terragrunt"
+          if [ -n "$PR_NUMBER" ]; then
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" \
+              --jq '.[].filename' > "$tmp/changed.txt"
+          else
+            gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA" \
+              --jq '.files[].filename' > "$tmp/changed.txt"
+          fi
+          printf '%s' "${TARGETS:-[]}" > "$tmp/targets.json"
+          python3 scripts/affected-units.py \
+            --changed "$tmp/changed.txt" --targets "$tmp/targets.json" \
+            --terragrunt "$tmp/terragrunt" --root . > "$tmp/merged.json"
+          echo "targets=$(cat "$tmp/merged.json")" >> "$GITHUB_OUTPUT"
