@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [list]
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
       actions: read
     env:

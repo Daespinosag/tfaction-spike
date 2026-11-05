@@ -8,7 +8,7 @@ dependency "base" {
   mock_outputs = {
     id = "mock-base-id"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "providers", "show"]
 }
 
 inputs = {
