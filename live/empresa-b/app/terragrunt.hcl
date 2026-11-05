@@ -5,3 +5,4 @@ terraform {
 inputs = {
   name = "empresa-b-app"
 }
+# R1: una unit (con capa)
