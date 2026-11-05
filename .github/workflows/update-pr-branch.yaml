@@ -1,0 +1,47 @@
+name: update-pr-branch
+# S1.2b: sin workflow de apply todavia (S1.3), se ejecuta la accion update-pr-branch
+# al hacer push a main, para los targets del commit (misma unit => PR abiertos con la etiqueta del target).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "live/**"
+      - "catalog/**"
+permissions: {}
+jobs:
+  list:
+    uses: ./.github/workflows/workflow_call_list.yaml
+    permissions:
+      contents: read
+      pull-requests: read
+
+  update:
+    name: "update-pr-branch (${{ matrix.target.target }})"
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    needs: [list]
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      TFACTION_TARGET: ${{ matrix.target.target }}
+      TFACTION_WORKING_DIR: ${{ matrix.target.working_directory }}
+      TFACTION_JOB_TYPE: ${{ matrix.target.job_type }}
+      TFACTION_IS_APPLY: "true"
+    if: "join(fromJSON(needs.list.outputs.targets), '') != ''"
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.list.outputs.targets) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Update related PR branches
+        uses: daespinosag/tfaction@e892f1d582adb0c401caee0e768c9bd7b063e86e # v2.3.4
+        if: always()
+        with:
+          action: update-pr-branch
+          github_token: ${{ github.token }}
