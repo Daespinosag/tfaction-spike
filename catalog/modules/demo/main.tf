@@ -14,3 +14,4 @@ resource "terraform_data" "this" {
 output "id" {
   value = terraform_data.this.id
 }
+# R2: modulo compartido (con capa)
